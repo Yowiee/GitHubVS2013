@@ -8,6 +8,8 @@
 
 #include <opencv\highgui.h>
 #include <opencv\cv.h>
+#include <ExpSmooth.hpp>
+#include <HRTimer.hpp>
 
 using namespace cv;
 using namespace std;
@@ -26,12 +28,16 @@ void InitCounter()
 	{
 		std::cout << "QueryPerformanceFrequency failed!\n";
 	}
-	PCFreq = double(li.QuadPart) / 1000.0f;
+	PCFreq = double(li.QuadPart);
 	_qpcInited = true;
 }
+
 double CLOCK()
 {
-	if (!_qpcInited) InitCounter();
+	if (!_qpcInited) {
+		InitCounter();
+	}
+
 	LARGE_INTEGER li;
 	QueryPerformanceCounter(&li);
 	return double(li.QuadPart) / PCFreq;
@@ -55,32 +61,16 @@ double CLOCK()
 }
 #endif
 
-double _avgdur = 0;
-double _fpsstart = 0;
-double _avgfps = 0;
-double _fps1sec = 0;
-
-double avgdur(double newdur)
-{
-	_avgdur = 0.98*_avgdur + 0.02*newdur;
-	return _avgdur;
-}
-
-double avgfps()
-{
-	if (CLOCK() - _fpsstart>1000)
-	{
-		_fpsstart = CLOCK();
-		_avgfps = 0.7*_avgfps + 0.3*_fps1sec;
-		_fps1sec = 0;
-	}
-	_fps1sec++;
-	return _avgfps;
-}
 
 int main() {
 	//Start and end times
 	time_t tStart, tEnd;
+
+	// smoothed FPS
+	EXPSMOOTH esFrameTime(0.2);
+
+	// process timer
+	HRTIMER ProcTimer();
 
 	const string wRawVideo = "Raw Video";
 	const string wStats = "Stats";
@@ -111,10 +101,11 @@ int main() {
 	cv::namedWindow(wStats, CV_WINDOW_AUTOSIZE);
 	cv::createTrackbar(tbStats, wStats, &cntFrame, c_frameCnt);
 
+	time(&tStart);
 	while (1)
 	{
+		ProcTimer.Start();
 		double start = CLOCK();
-		time(&tStart);
 
 		bool bSuccess = cap.read(c_frame); // read a new frame from video
 
@@ -136,9 +127,10 @@ int main() {
 		}
 
 		time(&tEnd);
+		double deltaT = ProcTimer.Stop();
 		double dur = CLOCK() - start;
-		avgdur(dur);
-		cout << (cntFrame / difftime(tEnd, tStart)) << ", " << avgfps() << endl;
+		esFrameTime.AddData(dur);
+		cout << (cntFrame / difftime(tEnd, tStart)) << ", " << 1.0/esFrameTime.Read() << endl;
 	}
 
 	// wait for second key press before exiting
