@@ -53,7 +53,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(OPENCV_BUILD)\include;D:\Users\Wishart\Documents\Stuart\Programming\C++ Utils</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OPENCV_BUILD)\include;D:\Users\Wishart\Documents\Stuart\Programming\Cpp_Utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -72,6 +72,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(OPENCV_BUILD)\include;D:\Users\Wishart\Documents\Stuart\Programming\Cpp_Utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -81,13 +82,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\Stuart\Programming\C++ Utils\ExpSmooth.cpp" />
-    <ClCompile Include="..\..\..\..\Stuart\Programming\C++ Utils\HRTimer.cpp" />
+    <ClCompile Include="..\..\..\..\Stuart\Programming\Cpp_Utils\ExpSmooth.cpp" />
+    <ClCompile Include="..\..\..\..\Stuart\Programming\Cpp_Utils\HRTimer.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\Stuart\Programming\C++ Utils\ExpSmooth.hpp" />
-    <ClInclude Include="..\..\..\..\Stuart\Programming\C++ Utils\HRTimer.hpp" />
+    <ClInclude Include="..\..\..\..\Stuart\Programming\Cpp_Utils\ExpSmooth.hpp" />
+    <ClInclude Include="..\..\..\..\Stuart\Programming\Cpp_Utils\HRTimer.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

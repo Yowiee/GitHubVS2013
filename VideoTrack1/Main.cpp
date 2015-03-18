@@ -14,54 +14,6 @@
 using namespace cv;
 using namespace std;
 
-#if defined(_MSC_VER) || defined(WIN32)  || defined(_WIN32) || defined(__WIN32__) \
-    || defined(WIN64)    || defined(_WIN64) || defined(__WIN64__) 
-
-#include <windows.h>
-bool _qpcInited = false;
-double PCFreq = 0.0;
-__int64 CounterStart = 0;
-void InitCounter()
-{
-	LARGE_INTEGER li;
-	if (!QueryPerformanceFrequency(&li))
-	{
-		std::cout << "QueryPerformanceFrequency failed!\n";
-	}
-	PCFreq = double(li.QuadPart);
-	_qpcInited = true;
-}
-
-double CLOCK()
-{
-	if (!_qpcInited) {
-		InitCounter();
-	}
-
-	LARGE_INTEGER li;
-	QueryPerformanceCounter(&li);
-	return double(li.QuadPart) / PCFreq;
-}
-
-#endif
-
-#if defined(unix)        || defined(__unix)      || defined(__unix__) \
-    || defined(linux)       || defined(__linux)     || defined(__linux__) \
-    || defined(sun)         || defined(__sun) \
-    || defined(BSD)         || defined(__OpenBSD__) || defined(__NetBSD__) \
-    || defined(__FreeBSD__) || defined __DragonFly__ \
-    || defined(sgi)         || defined(__sgi) \
-    || defined(__MACOSX__)  || defined(__APPLE__) \
-    || defined(__CYGWIN__) 
-double CLOCK()
-{
-	struct timespec t;
-	clock_gettime(CLOCK_MONOTONIC, &t);
-	return (t.tv_sec * 1000) + (t.tv_nsec*1e-6);
-}
-#endif
-
-
 int main() {
 	//Start and end times
 	time_t tStart, tEnd;
@@ -70,7 +22,7 @@ int main() {
 	EXPSMOOTH esFrameTime(0.2);
 
 	// process timer
-	HRTIMER ProcTimer();
+	HRTIMER ProcTimer;
 
 	const string wRawVideo = "Raw Video";
 	const string wStats = "Stats";
@@ -105,7 +57,6 @@ int main() {
 	while (1)
 	{
 		ProcTimer.Start();
-		double start = CLOCK();
 
 		bool bSuccess = cap.read(c_frame); // read a new frame from video
 
@@ -120,17 +71,15 @@ int main() {
 
 		cv::setTrackbarPos(tbStats, wStats, ++cntFrame);
 
-		if (cv::waitKey(30) == 27) //wait for 'esc' key press for 30 ms. If 'esc' key is pressed, break loop
+		if (cv::waitKey(20) == 27) //wait for 'esc' key press for 30 ms. If 'esc' key is pressed, break loop
 		{
 			cout << endl << "Press any key to exit" << endl;
 			break;
 		}
 
-		time(&tEnd);
 		double deltaT = ProcTimer.Stop();
-		double dur = CLOCK() - start;
-		esFrameTime.AddData(dur);
-		cout << (cntFrame / difftime(tEnd, tStart)) << ", " << 1.0/esFrameTime.Read() << endl;
+		esFrameTime.AddData(deltaT);
+		cout << std::fixed << std::setprecision(2) << 1.0 / esFrameTime.Read() << endl;
 	}
 
 	// wait for second key press before exiting
